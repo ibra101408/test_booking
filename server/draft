@@ -1,0 +1,134 @@
+//working but shitty db structure
+
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const db = require('./db');
+const app = express();
+
+app.use(cors());
+app.use(bodyParser.json());
+
+app.use(cors({
+    origin: 'http://localhost:3005',
+}));
+const port = 3005;
+
+// API endpoint to fetch the data from the database
+/*app.get('/api/data', (req, res) => {
+    db.query('SELECT * FROM users', (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            res.status(500).json({ error: 'Failed to fetch data from database' });
+            return;
+        }
+        res.json(rows);
+    });
+
+});*/
+
+
+// Use parameterized query to avoid SQL injection
+app.get('/available-dates', async (req, res) => {
+    const sql = 'SELECT DISTINCT DATE_FORMAT(date, "%Y-%m-%d") AS date FROM date';
+
+    db.query (sql, (err, rows, result) => {
+
+        if(err){
+            console.log(err.message);
+            return res.status(500).json({error: "Failed"})
+        }
+        const dates = rows.map(row => {
+            return {
+                date: row.date,
+                // other fields
+            };
+        });
+
+        res.json(dates);
+    })
+});
+
+app.get('/available-hours', async (req, res) => {
+    const date = req.query.date;
+    console.log(date);
+
+    if (!date) {
+        return res.status(400).send('Date parameter required');
+    }
+    else {
+        const sql = 'SELECT HOUR(date) AS hour FROM date WHERE DATE(date) = ?';
+
+        db.query(sql, [date], (err, rows, result) => {
+
+            if (err) {
+                console.log(err.message);
+                return res.status(500).json({error: "Failed"})
+            }
+            const hour = rows.map(row => {
+                return {
+                    hour: row.hour,
+                    // other fields
+                };
+            });
+            console.log('hour: ', hour)
+            res.json(hour);
+        });
+    }
+});
+
+app.post('/api/booking', async (req, res) => {
+    const { name, address } = req.body;
+    const { selectedDate, selectedHour } = req.body;
+//    console.log('body: ', req.body);
+    let user_id = null;
+    let date_id = null;
+
+    try{
+        // Perform operations with the received data
+        const user_name = 'INSERT INTO users (name, address) VALUES (?, ?)';
+
+        db.query(user_name, [name, address], (err, result) => {
+            if(err){
+                console.log(err.message);
+                res.status(500).json({error: "Failed"})
+                return;
+            }
+            user_id = result.insertId;
+            res.json({ message: 'Booking successful', id: result.insertId });
+
+            const chosen_date = 'SELECT date_id FROM date WHERE DATE(date) = ?';
+            db.query(chosen_date, [selectedDate], (err, result) => {
+                if(err){
+                    console.log(err.message);
+                    res.status(500).json({error: "Failed"})
+                    return;
+                }
+                date_id = result[0].date_id;
+
+                console.log('chosen_date: ', date_id);
+            });
+
+            //console.log("user ID ", user_id);
+            const insertBookingSql = 'INSERT INTO booked_time (client_id, date_id, date, time) VALUES (?, ?, ?, ?)';
+            //db.query(insertBookingSql, [user_id, selectedDate, selectedHour], (err, result) => {
+            db.query(insertBookingSql, [user_id, 2, selectedDate, selectedHour], (err, result) => {
+                if(err){
+                    console.log(err.message);
+                    res.status(500).json({error: "Failed22"})
+                }
+            });
+        });
+
+    } catch (err) {
+        console.log(err.message);
+        res.status(500).json({ error: "Failed" });
+    }
+
+});
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+
+
