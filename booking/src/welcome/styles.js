@@ -79,13 +79,8 @@ export const styles = {
     },
 
     heading: {
-        fontSize: "72px",
-        fontFamily: "Cormorant Garamond",
-        color: colors.darkGrey,
-        fontWeight: "normal",
-        textAlign: "center",
+        ...fonts.heading,
         marginTop: "1%",
-        zIndex: 1,
     },
     name: {
         fontSize: "38px",
@@ -96,17 +91,11 @@ export const styles = {
     },
 
     divider: {
-        width: "80px",
-        height: "1px",
-        background: colors.darkBrown,
-        zIndex: 1,
+        ...fonts.divider
     },
 
     divider2: {
-        width: "80px",
-        height: "1px",
-        background: colors.darkBrown,
-        zIndex: 1,
+        ...fonts.divider,
         marginTop: "11px",
     }
 }

@@ -1,14 +1,7 @@
 import React, { useEffect } from "react";
 import {Grid} from "@mui/material";
 import {styles} from "./styles.js";
-/*import {Swiper} from "swiper";
-
-//import SwiperCore, { Navigation, EffectFade } from "swiper";
-//import { Swiper, SwiperSlide } from "swiper/react";
-import  {EffectFade, Navigation} from "swiper/modules";
-import {SwiperSlide} from "swiper/react";
-//SwiperCore.use([Navigation, EffectFade]);
-*/
+import services from "./services.json";
 import Slider, {Slide} from "./slider";
 import { pictures, pictures1 } from "../data";
 
@@ -18,56 +11,32 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
-export default function Services() {
+export default function Services({services}) {
 
     return (
         <div style={styles.container}>
-            <h4>Our</h4>
-            <h1>Services</h1>
-            <p>
+            <h4 style={styles.transitional}>Our</h4>
+            <h1 style={styles.heading}>Услуги</h1>
+
+            <divider style={styles.divider} />
+
+            <p style={styles.text}>
                 Meie salong pakub kõiki juuksuriteenuseid nii naistele kui ka meestele. Meie stilistid aitavad teil kujundada just teile sobiva individuaalse kuvandi lähtudes teie soovidest, välimuse eripärast, iseloomust, harjumistest ja eluviisist.
             </p>
-            <div className="services-box-container">
+            <div className="bogs" style={styles.gridContainer}>
                 <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                        <div className="services-box">
-                            <img src="./service1.png" alt="services1" />
-                            <h3>Haircut</h3>
-                            <p>
-                                Juuste lõikus pole mitte ainult esmavajalik juuste hooldamise põhiprotseduur, vaid ka eneseväljenduse viis ning teie imago ja stiili lähtepunkt.
-                            </p>
-                        </div>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <div className="services-box">
-                            <img src="./service2.png" alt="services1" />
-                            <h3>Haircut</h3>
-                            <p>
-                                Juuste lõikus pole mitte ainult esmavajalik juuste hooldamise põhiprotseduur, vaid ka eneseväljenduse viis ning teie imago ja stiili lähtepunkt.
-                            </p>
-                        </div>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <div className="services-box">
-                            <img src="./service3.png" alt="services1" />
-                            <h3>Haircut</h3>
-                            <p>
-                                Juuste lõikus pole mitte ainult esmavajalik juuste hooldamise põhiprotseduur, vaid ka eneseväljenduse viis ning teie imago ja stiili lähtepunkt.
-                            </p>
-                        </div>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <div className="services-box">
-                            <img src="./service4.png" alt="services1" />
-                            <h3>Haircut</h3>
-                            <p>
-                                Juuste lõikus pole mitte ainult esmavajalik juuste hooldamise põhiprotseduur, vaid ka eneseväljenduse viis ning teie imago ja stiili lähtepunkt.
-                            </p>
-                        </div>
-                    </Grid>
+                    {services.map((service) => (
+                        <Grid item xs={6} key={service.id}>
+                            <div className="services-box">
+                                <img style={styles.image} src={service.imageSrc} alt={service.name} />
+                                <h3 style={styles.service_name}>{service.name}</h3>
+                                <p style={styles.serviceText}>{service.description}</p>
+                            </div>
+                        </Grid>
+                    ))}
                 </Grid>
             </div>
-            <div className="chose_style">
+            <div>
                 <h4>Valige</h4>
                 <h1>Oma stiil</h1>
                 <p>
