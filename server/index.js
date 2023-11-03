@@ -12,6 +12,74 @@ app.use(cors({
 }));
 const port = 3005;
 
+
+let { total } = 0;
+
+
+// Add a new endpoint to get available category
+app.get('/available-category', async (req, res) => {
+    const sql = 'SELECT * FROM category';
+
+    db.query(sql, (err, rows) => {
+        if(err){
+            console.log(err.message);
+            return res.status(500).json({error: "Failed"})
+        }
+        const category = rows.map(row => ({
+            category_id: row.category_id,
+            name: row.name
+        }));
+        console.log("/available-category - ", category);
+
+        res.json(category);
+    });
+});
+
+// Add a new endpoint to get available service within a section
+app.get('/available-service', async (req, res) => {
+    const { category_id } = req.query;
+
+    if (!category_id) {
+        return res.status(400).send('Section parameter required');
+    }
+
+    const sql = 'SELECT * FROM service WHERE category_id = ?';
+
+    db.query(sql, [category_id], (err, rows) => {
+        if(err){
+            console.log(err.message);
+            return res.status(500).json({error: "Failed"})
+        }
+
+        const service = rows.map(row => ({
+            service_id: row.service_id,
+            name: row.name,
+            duration_minutes: row.duration_minutes
+        }));
+        console.log("/available-service - ", service);
+
+        res.json(service);
+    });
+});
+
+app.get('/all-service', async (req, res) => {
+    const sql = 'SELECT * FROM service';
+
+    db.query(sql, (err, rows) => {
+        if(err){
+            console.log(err.message);
+            return res.status(500).json({error: "Failed"})
+        }
+        const service = rows.map(row => ({
+            service_id: row.service_id,
+            name: row.name,
+            duration_minutes: row.duration_minutes
+        }));
+        res.json(service);
+    });
+});
+
+
 // Use parameterized query to avoid SQL injection
 app.get('/available-dates', async (req, res) => {
     const sql = 'SELECT DISTINCT DATE_FORMAT(date, "%Y-%m-%d") AS date FROM dates';
@@ -26,12 +94,14 @@ app.get('/available-dates', async (req, res) => {
                 date: row.date,
             };
         });
+        console.log("/available-dates - ", dates);
         res.json(dates);
     })
 });
 
 app.get('/available-hours', async (req, res) => {
     const date = req.query.date;
+    const serviceId = req.body.selectedServices; // Add this line to get the selected service ID
 
     if (!date) {
         return res.status(400).send('Date parameter required');
@@ -52,73 +122,27 @@ app.get('/available-hours', async (req, res) => {
                     time: row.time,
                 };
             });
+            console.log("/available-hours - ", time);
+            console.log("total hours for work is ", total);
             res.json(time);
         });
     }
 });
 
-// Add a new endpoint to get available sections
-app.get('/available-sections', async (req, res) => {
-    const sql = 'SELECT * FROM sections';
-    db.query(sql, (err, rows) => {
-        if(err){
-            console.log(err.message);
-            return res.status(500).json({error: "Failed"})
-        }
-        const sections = rows.map(row => ({
-            section_id: row.section_id,
-            name: row.name
-        }));
-        res.json(sections);
-    });
+app.post('/postDuration', (req, res) => {
+    const { totalDuration } = req.body; // Retrieve totalDuration from the request body
+    total = totalDuration;
+   // console.log('totalDuration: ', total); //counting well
+    res.json({ message: 'Data received successfully' });
 });
-
-// Add a new endpoint to get available haircuts within a section
-app.get('/available-haircuts', async (req, res) => {
-    const { section_id } = req.query;
-    if (!section_id) {
-        return res.status(400).send('Section parameter required');
-    }
-
-    const sql = 'SELECT * FROM haircuts WHERE section_id = ?';
-
-    db.query(sql, [section_id], (err, rows) => {
-        if(err){
-            console.log(err.message);
-            return res.status(500).json({error: "Failed"})
-        }
-
-        const haircuts = rows.map(row => ({
-            haircut_id: row.haircut_id,
-            name: row.name,
-            duration_minutes: row.duration_minutes
-        }));
-        res.json(haircuts);
-    });
-});
-
-app.get('/all-haircuts', async (req, res) => {
-    const sql = 'SELECT * FROM haircuts';
-
-    db.query(sql, (err, rows) => {
-        if(err){
-            console.log(err.message);
-            return res.status(500).json({error: "Failed"})
-        }
-        const haircuts = rows.map(row => ({
-            haircut_id: row.haircut_id,
-            name: row.name,
-            duration_minutes: row.duration_minutes
-        }));
-        res.json(haircuts);
-    });
-});
-
-app.post('/api/booking', async (req, res) => {
+/*
+app.post('/api/booking',
+    async (req, res) => {
     const {name, phone_number, address} = req.body;
     const {selectedDate, selectedTime} = req.body;
+    console.log('selectedHairCUD2: ', req.body.selectedServices);
 
-    console.log('body: ', req.body);
+
     let client_id = null;
     let date_id = null;
     let slot_id = null;
@@ -173,7 +197,7 @@ app.post('/api/booking', async (req, res) => {
         res.status(500).json({ error: "Failed" });
     }
 });
-
+*/
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });

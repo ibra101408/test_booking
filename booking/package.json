@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@fullcalendar/daygrid": "^6.1.9",
     "@mui/material": "^5.14.7",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -16,6 +17,7 @@
     "sass": "^1.66.1",
     "styled-components": "^6.0.7",
     "swiper": "^10.2.0",
+    "tui-time-picker": "^2.1.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

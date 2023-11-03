@@ -4,7 +4,7 @@ import { fonts } from "../style/fonts";
 export const styles = {
     container: {
         background: colors.white,
-        backgroundImage: "url(./services-bg.jpg)",
+        //backgroundImage: "url(./services-bg.jpg)",
         backgroundRepeat: "no-repeat",
         backgroundPositionY: "130px",
         color: colors.black,
@@ -13,8 +13,16 @@ export const styles = {
         flexWrap: "wrap",
         alignContent: "center",
         alignItems: "center",
-    },
 
+    },
+    subContainer: {
+        backgroundImage: "url(./services-bg.jpg)",
+        display: "flex",
+        flexDirection: "column",
+        flexWrap: "wrap",
+        alignContent: "center",
+        alignItems: "center",
+    },
     transitional:{
         ...fonts.transitional,
     },
@@ -27,7 +35,7 @@ export const styles = {
         ...fonts.text,
         margin: 0,
         width: "530px",
-        marginBottom: "3%"
+        marginBottom: "0"
     },
     divider: {
         ...fonts.divider,
@@ -38,6 +46,7 @@ export const styles = {
         textAlign: "center",
         paddingLeft: "11%",
         paddingRight: "11%",
+        paddingBottom: "4%",
     },
     serviceText: {
         width: "450px",
