@@ -16,6 +16,7 @@ const port = 3005;
 let { total } = 0;
 
 
+
 // Add a new endpoint to get available category
 app.get('/available-category', async (req, res) => {
     const sql = 'SELECT * FROM category';
@@ -29,7 +30,7 @@ app.get('/available-category', async (req, res) => {
             category_id: row.category_id,
             name: row.name
         }));
-        console.log("/available-category - ", category);
+        //console.log("/available-category - ", category);
 
         res.json(category);
     });
@@ -43,24 +44,93 @@ app.get('/available-service', async (req, res) => {
         return res.status(400).send('Section parameter required');
     }
 
-    const sql = 'SELECT * FROM service WHERE category_id = ?';
-
-    db.query(sql, [category_id], (err, rows) => {
+    const serviceSql = 'SELECT * FROM service WHERE category_id = ?';
+    db.query(serviceSql, [category_id], (err, rows) => {
         if(err){
             console.log(err.message);
             return res.status(500).json({error: "Failed"})
         }
 
-        const service = rows.map(row => ({
+        const service = rows.map((row) => ({
             service_id: row.service_id,
             name: row.name,
             duration_minutes: row.duration_minutes
         }));
-        console.log("/available-service - ", service);
+        //console.log("/available-service - ", service);
 
         res.json(service);
+        });
+        //res.json(service);
+   // });
+});
+/*
+app.get('/workers-for-service', async (req, res) => {
+    const { service_id } = req.query;
+
+    if (!service_id) {
+        return res.status(400).send('Service ID parameter required');
+    }
+
+    const workerQuery = `
+        SELECT worker.worker_id, worker.name
+        FROM worker
+        INNER JOIN worker_services ON worker.worker_id = worker_services.worker_id
+        WHERE worker_services.service_id = ?
+    `;
+
+    db.query(workerQuery, [service_id], (err, workerRows) => {
+        if (err) {
+            console.log(err.message);
+            return res.status(500).json({ error: 'Failed' });
+        }
+
+        const workers = workerRows.map((row) => ({
+            worker_id: row.worker_id,
+            name: row.name,
+        }));
+        console.log('/workers-for-service - ', workers)
+        res.json({ workers });
+    });
+});*/
+app.get('/workers-for-service', async (req, res) => {
+    const { service_ids } = req.query;
+    const serArray = [];
+    //serArray.push(service_ids);
+
+    if (!service_ids) {
+        return res.status(400).send('Service IDs parameter required');
+    }
+
+    const serviceIdsArray = service_ids.split(',').map(id => parseInt(id));
+    for (let id of serviceIdsArray) {
+        serArray.push(id);
+    }
+        console.log("serArray: ", serArray);
+    // Now you can use the serviceIdsArray to fetch workers based on the selected services
+//HAVING COUNT(DISTINCT worker_services.service_id) = (?)
+    const workerQuery = `
+        SELECT worker.worker_id, worker.name
+        FROM worker
+        INNER JOIN worker_services ON worker.worker_id = worker_services.worker_id
+        WHERE worker_services.service_id IN (${serArray.join(',')})
+        GROUP BY worker.worker_id, worker.name
+    `;
+
+    db.query(workerQuery, [serviceIdsArray.length], (err, workerRows) => {
+        if (err) {
+            console.log(err.message);
+            return res.status(500).json({ error: 'Failed' });
+        }
+
+        const workers = workerRows.map((row) => ({
+            worker_id: row.worker_id,
+            name: row.name,
+        }));
+        console.log('/workers-for-service - ', workers)
+        res.json({ workers });
     });
 });
+
 
 app.get('/all-service', async (req, res) => {
     const sql = 'SELECT * FROM service';
@@ -73,7 +143,8 @@ app.get('/all-service', async (req, res) => {
         const service = rows.map(row => ({
             service_id: row.service_id,
             name: row.name,
-            duration_minutes: row.duration_minutes
+            duration_minutes: row.duration_minutes,
+            price: row.price
         }));
         res.json(service);
     });
@@ -94,7 +165,7 @@ app.get('/available-dates', async (req, res) => {
                 date: row.date,
             };
         });
-        console.log("/available-dates - ", dates);
+      //  console.log("/available-dates - ", dates);
         res.json(dates);
     })
 });
@@ -122,8 +193,8 @@ app.get('/available-hours', async (req, res) => {
                     time: row.time,
                 };
             });
-            console.log("/available-hours - ", time);
-            console.log("total hours for work is ", total);
+           // console.log("/available-hours - ", time);
+            //console.log("total hours for work is ", total);
             res.json(time);
         });
     }
